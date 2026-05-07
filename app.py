@@ -1,5 +1,6 @@
 import streamlit as st
 import joblib
+import nltk
 from nltk.stem import WordNetLemmatizer
 
 st.set_page_config(page_title="News Classifier Lite", page_icon="📰", layout="centered")
