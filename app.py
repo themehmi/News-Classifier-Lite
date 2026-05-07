@@ -9,6 +9,7 @@ st.set_page_config(page_title="News Classifier Lite", page_icon="📰", layout="
 nltk.download('wordnet')
 
 lemmatizer = WordNetLemmatizer()
+nltk.download('omw-1.4')
 
 def cleaner(text):
     # Lowercase
@@ -20,6 +21,7 @@ def cleaner(text):
     # Lemmatize each word
     words = [lemmatizer.lemmatize(w) for w in words]
     return " ".join(words)
+    pass
 
 #LOAD MODELS
 # Using @st.cache_resource ensures the model loads only once, preventing lag
