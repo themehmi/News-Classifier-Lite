@@ -3,6 +3,22 @@ import joblib
 
 st.set_page_config(page_title="News Classifier Lite", page_icon="📰", layout="centered")
 
+# Custom Cleaning Function
+nltk.download('wordnet')
+
+lemmatizer = WordNetLemmatizer()
+
+def cleaner(text):
+    # Lowercase
+    text = text.lower()
+    # Remove numbers and punctuation
+    text = re.sub(r'\d+', '', text)
+    text = text.translate(str.maketrans('', '', string.punctuation))
+    words = text.split()
+    # Lemmatize each word
+    words = [lemmatizer.lemmatize(w) for w in words]
+    return " ".join(words)
+
 #LOAD MODELS
 # Using @st.cache_resource ensures the model loads only once, preventing lag
 @st.cache_resource
