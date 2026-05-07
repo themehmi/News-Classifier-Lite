@@ -1,6 +1,4 @@
-flask
+streamlit
 scikit-learn
 joblib
 imbalanced-learn
-pandas
-matplotlib
