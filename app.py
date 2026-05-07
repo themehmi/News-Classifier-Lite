@@ -1,17 +1,25 @@
 import streamlit as st
 import joblib
 
-# Page Configuration
 st.set_page_config(page_title="News Classifier Lite", page_icon="📰", layout="centered")
 
-# Load individual components
-tfidf = joblib.load('nclite_vec.pkl')
-clf = joblib.load('nclite.pkl')
+#LOAD MODELS
+# Using @st.cache_resource ensures the model loads only once, preventing lag
+@st.cache_resource
+def load_assets():
+    try:
+        tfidf = joblib.load('nclite_vec.pkl')
+        clf = joblib.load('nclite.pkl')
+        return tfidf, clf
+    except FileNotFoundError:
+        st.error("Error: '.pkl' files not found. Ensure they are in the same directory.")
+        return None, None
 
-# Responsive OLED Black CSS
+tfidf, clf = load_assets()
+
+# RESPONSIVE CSS
 st.markdown(f"""
     <style>
-    /* Global Styles & Responsive Background */
     .stApp {{
         background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), 
                     url('https://images.unsplash.com/photo-1495020689067-958852a7765e?q=80&w=2670&auto=format&fit=crop');
@@ -21,10 +29,8 @@ st.markdown(f"""
         color: white;
     }}
 
-    /* Hide Streamlit Header/Footer for a clean look */
     header, footer {{visibility: hidden;}}
 
-    /* GitHub Corner Button - Responsive Positioning */
     .github-corner {{
         position: fixed;
         top: 15px;
@@ -41,45 +47,30 @@ st.markdown(f"""
         display: flex;
         align-items: center;
         gap: 6px;
-        transition: 0.3s;
-    }}
-    .github-corner:hover {{
-        background: white;
-        color: black;
     }}
 
-    /* Main Card Styling */
     .block-container {{
         padding-top: 5rem !important;
         max-width: 500px !important;
     }}
 
-    /* Text Area Customization */
     .stTextArea textarea {{
         background-color: #000 !important;
         color: white !important;
         border: 1px solid #1f1f1f !important;
         border-radius: 12px !important;
-        font-size: 16px !important; /* Prevents iOS zoom on focus */
+        font-size: 16px !important;
     }}
 
-    /* Button Styling */
     .stButton>button {{
         width: 100%;
         background-color: white !important;
         color: black !important;
         font-weight: 700 !important;
         border-radius: 12px !important;
-        border: none !important;
         padding: 0.6rem;
-        transition: 0.2s;
-    }}
-    
-    .stButton>button:active {{
-        transform: scale(0.98);
     }}
 
-    /* Category Tag Styling */
     .cat-tag {{
         display: inline-block;
         font-size: 0.65rem;
@@ -89,19 +80,10 @@ st.markdown(f"""
         border-radius: 5px;
         margin: 2px;
         text-transform: uppercase;
-        letter-spacing: 1px;
     }}
 
-    /* Mobile Adjustments */
     @media (max-width: 480px) {{
-        .block-container {{
-            padding-left: 15px !important;
-            padding-right: 15px !important;
-            padding-top: 4rem !important;
-        }}
-        .github-corner span {{
-            display: none; /* Icon only on small phones */
-        }}
+        .github-corner span {{ display: none; }}
     }}
     </style>
     
@@ -111,24 +93,15 @@ st.markdown(f"""
     </a>
     """, unsafe_allow_html=True)
 
-# App Content
+# APP UI
 st.title("News Classifier Lite")
 
-# Scope Display with "Limited To 4 Categories" text
+# Scope Display
 categories = ['Graphics', 'Medicine', 'Space', 'Politics']
 cat_html = "".join([f'<span class="cat-tag">{cat}</span>' for cat in categories])
 
 st.markdown(f"""
-    <div style='
-        border: 1px solid #1f1f1f; 
-        padding: 15px; 
-        border-radius: 12px; 
-        background: rgba(255,255,255,0.02);
-        margin-bottom: 25px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    '>
+    <div style='border: 1px solid #1f1f1f; padding: 15px; border-radius: 12px; background: rgba(255,255,255,0.02); margin-bottom: 25px; display: flex; flex-direction: column; gap: 10px;'>
         <span style='color: #888; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;'>
             LIMITED TO 4 CATEGORIES:
         </span>
@@ -137,27 +110,35 @@ st.markdown(f"""
         </div>
     </div>
 """, unsafe_allow_html=True)
+
 # Main Form
 with st.container():
     news_input = st.text_area("Input Text", placeholder="Paste news snippet here...", height=150, label_visibility="collapsed")
     submit = st.button("Identify Category")
 
     if submit:
-        if news_input.strip():
-            # NLP Transformation
-            text_vectorized = tfidf.transform([news_input])
-            prediction_idx = clf.predict(text_vectorized)[0]
-            
-            # Mapping
-            mapping = {0: 'Graphics', 1: 'Medicine', 2: 'Space', 3: 'Politics'}
-            result = mapping.get(prediction_idx, "Unknown")
-            
-            # Result Card
-            st.markdown(f"""
-                <div style="margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.03); border: 1px solid #1f1f1f; border-radius: 12px;">
-                    <p style="color: #888; font-size: 0.7rem; text-transform: uppercase; margin: 0;">Result</p>
-                    <h2 style="color: white; margin: 5px 0 0 0;">{result}</h2>
-                </div>
-            """, unsafe_allow_html=True)
+        if news_input.strip() and tfidf and clf:
+            try:
+                # NLP Transformation
+                data = [news_input]
+                vect = tfidf.transform(data)
+                prediction = clf.predict(vect)[0]
+                
+                # Mapping - Update these to match your specific model labels
+                mapping = {0: 'Graphics', 1: 'Medicine', 2: 'Space', 3: 'Politics'}
+                result = mapping.get(prediction, str(prediction))
+                
+                # Result Card
+                st.markdown(f"""
+                    <div style="margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.03); border: 1px solid #1f1f1f; border-radius: 12px;">
+                        <p style="color: #888; font-size: 0.7rem; text-transform: uppercase; margin: 0;">Result</p>
+                        <h2 style="color: white; margin: 5px 0 0 0;">{result}</h2>
+                    </div>
+                """, unsafe_allow_html=True)
+            except Exception as e:
+                st.error(f"Prediction Error: {e}")
         else:
-            st.error("Please enter some text.")
+            if not news_input.strip():
+                st.warning("Please enter some text.")
+            else:
+                st.error("Model files are missing. Check your directory.")
