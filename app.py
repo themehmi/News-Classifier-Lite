@@ -11,6 +11,7 @@ app = Flask(__name__)
 # NLTK CONFIG FOR VERCEL
 # Tell NLTK to look for data in the current directory's 'nltk_data' folder
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 nltk_data_path = os.path.join(BASE_DIR, 'nltk_data')
 if nltk_data_path not in nltk.data.path:
     nltk.data.path.append(nltk_data_path)
@@ -28,14 +29,32 @@ def cleaner(text):
     return " ".join(words)
 
 # LOAD MODELS SAFELY 
-try:
-    with open(os.path.join(BASE_DIR, 'nclite_vec.pkl'), 'rb') as f:
-        tfidf = pickle.load(f)
-    with open(os.path.join(BASE_DIR, 'nclite.pkl'), 'rb') as f:
-        clf = pickle.load(f)
-except Exception as e:
-    print(f"Model Load Error: {e}")
-    tfidf, clf = None, None
+def load_models():
+    try:
+        # Construct the full path to your files
+        tfidf_path = os.path.join(BASE_DIR, 'nclite_vec.pkl')
+        clf_path = os.path.join(BASE_DIR, 'nclite.pkl')
+
+        # Check if files exist before opening to avoid cryptic errors
+        if not os.path.exists(tfidf_path) or not os.path.exists(clf_path):
+            print(f"CRITICAL ERROR: Files not found at {BASE_DIR}")
+            return None, None
+
+        # Load using 'rb' (Read Binary)
+        with open(tfidf_path, 'rb') as f:
+            tfidf = pickle.load(f)
+        
+        with open(clf_path, 'rb') as f:
+            clf = pickle.load(f)
+
+        print("Models loaded successfully!")
+        return tfidf, clf
+
+    except Exception as e:
+        print(f"Error during loading: {e}")
+        return None, None
+
+tfidf, clf = load_models()
 
 @app.route('/', methods=['GET'])
 def home():
