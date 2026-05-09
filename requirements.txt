@@ -1,7 +1,7 @@
-streamlit==1.57.0
-scikit-learn==1.6.1
-joblib==1.5.3
-nltk==3.9.4
+flask
+scikit-learn
+joblib
+nltk
 pandas
 numpy
 dill
