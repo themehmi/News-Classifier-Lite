@@ -32,8 +32,8 @@ def cleaner(text):
 def load_models():
     try:
         # Construct the full path to your files
-        tfidf_path = os.path.join(BASE_DIR, nclite_vec.pkl)
-        clf_path = os.path.join(BASE_DIR, nclite.pkl)
+        tfidf_path = os.path.join(BASE_DIR, 'nclite_vec.pkl')
+        clf_path = os.path.join(BASE_DIR, 'nclite.pkl')
 
         # Check if files exist before opening to avoid cryptic errors
         if not os.path.exists(tfidf_path) or not os.path.exists(clf_path):
