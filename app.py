@@ -37,33 +37,88 @@ lemmatizer = WordNetLemmatizer()
 # --- CSS INJECTION (1.2x Scaling & Dark Theme) ---
 st.markdown(f"""
     <style>
+        /* Hide Streamlit default UI */
         header, [data-testid="stToolbar"], [data-testid="stDecoration"] {{ visibility: hidden; display: none !important; }}
-        .block-container {{ padding-top: 2rem !important; }}
+        
+        .block-container {{ padding-top: 2rem !important; padding-bottom: 2rem !important; }}
+        
         .stApp {{
             background: linear-gradient(rgba(0,0,0,0.9), rgba(0,0,0,0.9)), 
                         url('https://images.unsplash.com/photo-1495020689067-958852a7765e?q=80&w=2670');
             background-size: cover;
+            background-position: center;
         }}
+
+        /* Main Container: Responsive Width */
         .main-container {{
             background-color: #0a0a0a;
-            max-width: 500px; margin: auto; padding: 30px;
-            border-radius: 20px; border: 1px solid #1f1f1f;
+            width: 95%;
+            max-width: 550px; 
+            margin: auto; 
+            padding: 25px;
+            border-radius: 20px; 
+            border: 1px solid #1f1f1f;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            color: #ffffff; font-family: sans-serif;
+            color: #ffffff; 
+            font-family: sans-serif;
         }}
-        h2 {{ font-size: 1.8rem !important; font-weight: 800; margin-bottom: 20px; }}
+
+        h2 {{ 
+            font-size: clamp(1.4rem, 5vw, 1.8rem) !important; 
+            font-weight: 800; 
+            margin-bottom: 20px; 
+            text-align: center;
+        }}
+
+        /* Tags container: allows wrapping for small screens */
+        .tags-container {{
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 25px;
+        }}
+
         .cat-tag {{
-            display: inline-block; font-size: 0.72rem !important; color: #888;
-            border: 1px solid #1f1f1f; padding: 4px 10px;
-            border-radius: 5px; margin: 2px; text-transform: uppercase;
+            font-size: 0.7rem !important; 
+            color: #888;
+            border: 1px solid #1f1f1f; 
+            padding: 4px 10px;
+            border-radius: 5px; 
+            text-transform: uppercase;
+            white-space: nowrap;
         }}
-        .result-box {{ margin-top: 30px; padding-top: 25px; border-top: 1px solid #1f1f1f; }}
-        .res-label {{ color: #888; font-size: 0.84rem !important; text-transform: uppercase; font-weight: 700; }}
-        .res-val {{ font-size: 1.68rem !important; font-weight: 600; margin-top: 5px; }}
-        textarea {{ font-size: 1.2rem !important; color: white !important; }}
+
+        .result-box {{ 
+            margin-top: 30px; 
+            padding-top: 25px; 
+            border-top: 1px solid #1f1f1f; 
+        }}
+
+        .res-label {{ color: #888; font-size: 0.8rem !important; text-transform: uppercase; font-weight: 700; }}
+        
+        /* Font scaling for results */
+        .res-val {{ 
+            font-size: clamp(1.3rem, 6vw, 1.68rem) !important; 
+            font-weight: 600; 
+            margin-top: 5px; 
+        }}
+
+        textarea {{ font-size: 1rem !important; color: white !important; }}
+        
         button[kind="primary"] {{ 
-            width: 100%; background: white !important; color: black !important; 
-            font-weight: 700 !important; padding: 15px !important; border-radius: 12px !important;
+            width: 100%; 
+            background: white !important; 
+            color: black !important; 
+            font-weight: 700 !important; 
+            padding: 12px !important; 
+            border-radius: 12px !important;
+        }}
+
+        /* Mobile Adjustments */
+        @media (max-width: 480px) {{
+            .main-container {{ padding: 15px; }}
+            .block-container {{ padding-left: 0.5rem; padding-right: 0.5rem; }}
         }}
     </style>
 """, unsafe_allow_html=True)
